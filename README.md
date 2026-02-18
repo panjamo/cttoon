@@ -80,6 +80,52 @@ $ echo '[1,2,3]' | cttoon
 [3]: 1,2,3
 ```
 
+## PowerShell: ConvertTo-Toon
+
+A `ConvertTo-Toon` cmdlet is included in `ConvertTo-Toon.ps1`. It pipes any PowerShell object through `ConvertTo-Json` and then `cttoon`, so you can use it directly in the pipeline.
+
+### Setup
+
+Copy the script into your PowerShell modules directory and dot-source it from your profile:
+
+```powershell
+# Copy the script
+Copy-Item ConvertTo-Toon.ps1 "$HOME\Documents\PowerShell\Scripts\ConvertTo-Toon.ps1"
+
+# Add to your profile (run once)
+Add-Content $PROFILE '. "$HOME\Documents\PowerShell\Scripts\ConvertTo-Toon.ps1"'
+```
+
+After restarting PowerShell, `ConvertTo-Toon` is available in every session.
+
+### Parameters
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `-InputObject` | Input from pipeline | — |
+| `-Depth` | JSON serialization depth | `2` |
+| `-Delimiter` | `comma`, `tab`, or `pipe` | `comma` |
+| `-Spaces` | Indentation spaces per level | `2` |
+| `-KeyFolding` | `off`, `on`, or `safe` (`on` maps to `safe`) | `off` |
+| `-FlattenDepth` | Max key folding depth | unlimited |
+| `-OutFile` | Write output to file instead of stdout | — |
+
+### Examples
+
+```powershell
+# Convert a hashtable
+@{ name = "Alice"; age = 30 } | ConvertTo-Toon
+
+# Convert command output with deeper nesting
+Get-Process | Select-Object -First 3 Name, Id, CPU | ConvertTo-Toon -Depth 4
+
+# Use pipe delimiter and write to file
+Get-Service | Select-Object Name, Status | ConvertTo-Toon -Delimiter pipe -OutFile services.toon
+
+# With key folding
+@{ data = @{ metadata = @{ name = "test" } } } | ConvertTo-Toon -KeyFolding safe
+```
+
 ## TOON format summary
 
 TOON encodes the JSON data model with minimal syntax:
