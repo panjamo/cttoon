@@ -1,0 +1,10 @@
+[package]
+name = "cttoon"
+version = "0.1.0"
+edition = "2021"
+description = "Command-line tool to convert JSON to TOON (Token-Oriented Object Notation)"
+license = "MIT"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
