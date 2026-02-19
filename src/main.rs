@@ -285,10 +285,21 @@ fn encode_array_field(
         out.push('\n');
         match item {
             Value::Object(map) if !map.is_empty() => {
-                out.push_str(&child_indent);
-                out.push('-');
-                out.push('\n');
-                encode_object(out, map, depth + 2, opts, false);
+                let mut obj_out = String::new();
+                encode_object(&mut obj_out, map, depth + 2, opts, false);
+                // First field goes on same line as `-`
+                if let Some(first_newline) = obj_out.find('\n') {
+                    let first_line = &obj_out[..first_newline];
+                    let rest = &obj_out[first_newline..];
+                    out.push_str(&child_indent);
+                    out.push_str("- ");
+                    out.push_str(first_line.trim_start());
+                    out.push_str(rest);
+                } else {
+                    out.push_str(&child_indent);
+                    out.push_str("- ");
+                    out.push_str(obj_out.trim_start());
+                }
             }
             Value::Object(_) => {
                 out.push_str(&child_indent);
