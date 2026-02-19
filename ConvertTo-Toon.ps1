@@ -40,7 +40,10 @@ function ConvertTo-Toon {
         if ($KeyFolding)   { $cttoonArgs += '-k', $(if ($KeyFolding -eq 'on') { 'safe' } else { $KeyFolding }) }
         if ($PSBoundParameters.ContainsKey('FlattenDepth')) { $cttoonArgs += '-f', $FlattenDepth }
 
+        $prevEncoding = [Console]::OutputEncoding
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
         $toon = $json | cttoon @cttoonArgs
+        [Console]::OutputEncoding = $prevEncoding
 
         if ($OutFile) {
             $toon | Set-Content -Encoding UTF8 $OutFile
