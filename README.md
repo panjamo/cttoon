@@ -1,5 +1,7 @@
 # cttoon
 
+<img src="https://repository-images.githubusercontent.com/1161156603/d7dc8898-9d47-4391-9130-86794c161e83" width="100" height="100" />
+
 A command-line tool that converts JSON or XML to [TOON](https://github.com/toon-format/spec) (Token-Oriented Object Notation) — a compact, human-readable format that reduces token usage by 30–60% compared to JSON. Input format is auto-detected.
 
 ## Installation
