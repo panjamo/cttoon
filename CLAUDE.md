@@ -2,6 +2,11 @@
 
 Command-line tool to convert JSON or XML to TOON (Token-Oriented Object Notation). Input format is auto-detected: input starting with `<` is treated as XML and converted to JSON internally before encoding.
 
+Input/output routing:
+- File argument → stdout
+- Piped stdin (non-empty) → stdout
+- No pipe / empty pipe → clipboard in, clipboard out (copy-paste workflow)
+
 ## Build & Run
 
 ```bash
@@ -29,7 +34,7 @@ cargo fmt
 ## Project Structure
 
 - `src/main.rs` — CLI entry point, XML auto-detection, XML→JSON converter, delegates encoding to `format-as-toon` crate
-- `Cargo.toml` — Dependencies: `clap` (CLI), `serde_json` (JSON parsing), `quick-xml` (XML parsing), `format-as-toon` (TOON encoding)
+- `Cargo.toml` — Dependencies: `clap` (CLI), `serde_json` (JSON parsing), `quick-xml` (XML parsing), `format-as-toon` (TOON encoding), `arboard` (clipboard fallback)
 
 ## CLI Options
 

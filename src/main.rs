@@ -1,7 +1,8 @@
 use std::collections::BTreeMap;
-use std::io::{self, Read};
+use std::io::{self, IsTerminal, Read};
 use std::path::PathBuf;
 
+use arboard::Clipboard;
 use clap::{Parser, ValueEnum};
 use format_as_toon::{encode_toon, Delimiter, KeyFolding, ToonOptions};
 use quick_xml::events::Event;
@@ -252,12 +253,29 @@ fn parse_input(input: &str) -> Result<Value, Box<dyn std::error::Error>> {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
-    let raw_input = match &args.input {
-        Some(path) => std::fs::read_to_string(path)?,
+    let (raw_input, from_clipboard) = match &args.input {
+        Some(path) => (std::fs::read_to_string(path)?, false),
         None => {
-            let mut buf = String::new();
-            io::stdin().read_to_string(&mut buf)?;
-            buf
+            if io::stdin().is_terminal() {
+                // No pipe — read from clipboard
+                let text = Clipboard::new()
+                    .and_then(|mut cb| cb.get_text())
+                    .map_err(|e| format!("clipboard unavailable: {e}"))?;
+                (text, true)
+            } else {
+                let mut buf = String::new();
+                io::stdin().read_to_string(&mut buf)?;
+                let trimmed = buf.trim().to_string();
+                if trimmed.is_empty() {
+                    // Pipe was empty — fall back to clipboard
+                    let text = Clipboard::new()
+                        .and_then(|mut cb| cb.get_text())
+                        .map_err(|e| format!("stdin was empty and clipboard unavailable: {e}"))?;
+                    (text, true)
+                } else {
+                    (trimmed, false)
+                }
+            }
         }
     };
 
@@ -278,7 +296,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let output = encode_toon(&value, &opts);
-    print!("{output}");
+    if from_clipboard {
+        Clipboard::new()
+            .and_then(|mut cb| cb.set_text(output))
+            .map_err(|e| format!("failed to write to clipboard: {e}"))?;
+    } else {
+        print!("{output}");
+    }
 
     Ok(())
 }

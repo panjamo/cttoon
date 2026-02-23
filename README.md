@@ -19,9 +19,14 @@ echo '<person><name>Alice</name><age>30</age></person>' | cttoon
 cttoon data.json
 cttoon data.xml
 
+# No arguments and no pipe → reads from clipboard, writes TOON back to clipboard
+cttoon
+
 # With options
 cttoon -d pipe --key-folding safe -s 4 data.json
 ```
+
+When input comes from the clipboard (no file argument and no piped stdin), the TOON output is written back to the clipboard instead of stdout — making it a copy-paste workflow: copy JSON/XML, run `cttoon`, paste TOON.
 
 ## Options
 
