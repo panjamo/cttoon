@@ -1,6 +1,6 @@
 # cttoon
 
-Command-line tool to convert JSON to TOON (Token-Oriented Object Notation).
+Command-line tool to convert JSON or XML to TOON (Token-Oriented Object Notation). Input format is auto-detected: input starting with `<` is treated as XML and converted to JSON internally before encoding.
 
 ## Build & Run
 
@@ -8,7 +8,9 @@ Command-line tool to convert JSON to TOON (Token-Oriented Object Notation).
 cargo build
 cargo run -- --help
 echo '{"name":"Alice","age":30}' | cargo run
+echo '<person><name>Alice</name></person>' | cargo run
 cargo run -- input.json
+cargo run -- input.xml
 ```
 
 ## Test
@@ -26,14 +28,14 @@ cargo fmt
 
 ## Project Structure
 
-- `src/main.rs` — CLI entry point + TOON encoder (hand-rolled per spec, no external TOON crate)
-- `Cargo.toml` — Dependencies: `clap` (CLI), `serde_json` (JSON parsing)
+- `src/main.rs` — CLI entry point, XML auto-detection, XML→JSON converter, delegates encoding to `format-as-toon` crate
+- `Cargo.toml` — Dependencies: `clap` (CLI), `serde_json` (JSON parsing), `quick-xml` (XML parsing), `format-as-toon` (TOON encoding)
 
 ## CLI Options
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `[INPUT]` | JSON file path (stdin if omitted) | stdin |
+| `[INPUT]` | JSON or XML file path (stdin if omitted; format auto-detected) | stdin |
 | `-d, --delimiter` | `comma`, `tab`, or `pipe` | `comma` |
 | `-s, --spaces` | Indentation spaces per level | `2` |
 | `-k, --key-folding` | `off` or `safe` (dotted-path collapsing) | `off` |

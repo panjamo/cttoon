@@ -1,6 +1,6 @@
 # cttoon
 
-A command-line tool that converts JSON to [TOON](https://github.com/toon-format/spec) (Token-Oriented Object Notation) — a compact, human-readable format that reduces token usage by 30–60% compared to JSON.
+A command-line tool that converts JSON or XML to [TOON](https://github.com/toon-format/spec) (Token-Oriented Object Notation) — a compact, human-readable format that reduces token usage by 30–60% compared to JSON. Input format is auto-detected.
 
 ## Installation
 
@@ -11,11 +11,13 @@ cargo install --path .
 ## Usage
 
 ```bash
-# From stdin
+# From stdin (JSON or XML, auto-detected)
 echo '{"name":"Alice","age":30}' | cttoon
+echo '<person><name>Alice</name><age>30</age></person>' | cttoon
 
 # From file
 cttoon data.json
+cttoon data.xml
 
 # With options
 cttoon -d pipe --key-folding safe -s 4 data.json
@@ -71,6 +73,27 @@ a.b:
 ```bash
 $ echo '{"items":["x","y","z"]}' | cttoon -d pipe
 items[3|]: x|y|z
+```
+
+### XML input
+
+XML is auto-detected (trimmed input starting with `<`) and converted to JSON before encoding:
+
+```bash
+$ echo '<person><name>Alice</name><age>30</age></person>' | cttoon
+person:
+  age: "30"
+  name: Alice
+```
+
+Repeated elements become arrays, attributes are prefixed with `@`, mixed text+children use `#text`:
+
+```bash
+$ echo '<root><item id="1">foo</item><item id="2">bar</item></root>' | cttoon
+root:
+  item[2]:
+    @id: 1, #text: foo
+    @id: 2, #text: bar
 ```
 
 ### Root array
